@@ -7,39 +7,27 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"pakku-agent/assets"
-
-	"github.com/joho/godotenv"
+	"pakku-agent/internal/config"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	const openRouterUrl = "https://openrouter.ai/api/v1/responses"
-	apiKey := os.Getenv("OPENROUTER_API_KEY")
-	model := os.Getenv("OPENROUTER_MODEL")
-
-	if apiKey == "" || model == "" {
-		log.Fatal("OPENROUTER_API_KEY or OPENROUTER_MODEL is missing in your .env")
-	}
+	cfg := config.Load()
 
 	body, err := json.Marshal(map[string]string{
 		"input": "Tell me a joke",
-		"model": model,
+		"model": cfg.Model,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	req, err := http.NewRequest("POST", openRouterUrl, bytes.NewReader(body))
+	req, err := http.NewRequest("POST", cfg.APIUrl, bytes.NewReader(body))
 	if err != nil {
 		log.Fatal(err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Authorization", "Bearer "+cfg.APIKey)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
