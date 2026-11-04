@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 
@@ -9,6 +10,7 @@ import (
 	"pakku-agent/internal/chat"
 	"pakku-agent/internal/config"
 	"pakku-agent/internal/openrouter"
+	"pakku-agent/internal/relay"
 	"pakku-agent/internal/tools"
 )
 
@@ -18,7 +20,7 @@ func main() {
 	}
 }
 
-func run() error {
+func run() (err error) {
 	cfg, err := config.Load()
 	if err != nil {
 		return err
@@ -26,6 +28,14 @@ func run() error {
 
 	client := openrouter.NewClient(cfg.APIURL, cfg.APIKey, cfg.Model)
 	toolManager := tools.NewManager(tools.PermRead, tools.PermWrite)
+	if cfg.RelayChip != "" {
+		controller, openErr := relay.New(cfg.RelayChip)
+		if openErr != nil {
+			return openErr
+		}
+		defer func() { err = errors.Join(err, controller.Close()) }()
+		toolManager.Tools = append(toolManager.Tools, tools.RelayTool(controller))
+	}
 	pakku := agent.New(client, toolManager, cfg.MaxSteps, chat.Terminal{})
 
 	assets.PrintBanner()

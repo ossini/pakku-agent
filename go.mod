@@ -5,6 +5,7 @@ go 1.27.2
 require (
 	github.com/fatih/color v1.19.0
 	github.com/joho/godotenv v1.5.1
+	github.com/warthog618/go-gpiocdev v0.10.0
 )
 
 require (

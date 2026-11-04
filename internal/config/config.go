@@ -14,10 +14,11 @@ const (
 )
 
 type Config struct {
-	APIURL   string
-	APIKey   string
-	Model    string
-	MaxSteps int
+	APIURL    string
+	APIKey    string
+	Model     string
+	MaxSteps  int
+	RelayChip string
 }
 
 func Load() (Config, error) {
@@ -35,9 +36,10 @@ func Load() (Config, error) {
 	}
 
 	return Config{
-		APIURL:   apiURL,
-		APIKey:   apiKey,
-		Model:    model,
-		MaxSteps: maxSteps,
+		APIURL:    apiURL,
+		APIKey:    apiKey,
+		Model:     model,
+		MaxSteps:  maxSteps,
+		RelayChip: os.Getenv("RELAY_GPIO_CHIP"),
 	}, nil
 }
