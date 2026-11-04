@@ -34,7 +34,7 @@ func run() (err error) {
 			return openErr
 		}
 		defer func() { err = errors.Join(err, controller.Close()) }()
-		toolManager.Tools = append(toolManager.Tools, tools.RelayTool(controller))
+		toolManager.ConfigureRelay(controller)
 	}
 	pakku := agent.New(client, toolManager, cfg.MaxSteps, chat.Terminal{})
 

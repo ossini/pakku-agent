@@ -60,7 +60,8 @@ unavailable until they are added there.
 
 Set `RELAY_GPIO_CHIP` in `.env` to the GPIO chip carrying BCM GPIO 26, 20 and
 21 (check `/dev/gpiochip*` on your Pi; the chip number can vary by model).
-Only then does the `set_relay` tool become available to Pakku. It accepts
+The `set_relay` tool is always registered; without this setting it reports
+that the relay is unavailable. It accepts
 `{"channel":1,"on":true}` (channels 1-3); `on=false` switches it off. The
 Waveshare RPi Relay Board uses BCM 26/20/21 for CH1/CH2/CH3 and is active LOW.
 The GPIO device must be accessible to the process. The program starts with all
