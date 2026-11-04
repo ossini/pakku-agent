@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	apiURL          = "https://openrouter.ai/api/v1/responses"
-	defaultMaxSteps = 20
+	apiURL           = "https://openrouter.ai/api/v1/responses"
+	defaultMaxSteps  = 20
+	defaultRelayChip = "gpiochip15"
 )
 
 type Config struct {
@@ -34,12 +35,16 @@ func Load() (Config, error) {
 	if err != nil || maxSteps <= 0 {
 		maxSteps = defaultMaxSteps
 	}
+	relayChip := os.Getenv("RELAY_GPIO_CHIP")
+	if relayChip == "" {
+		relayChip = defaultRelayChip
+	}
 
 	return Config{
 		APIURL:    apiURL,
 		APIKey:    apiKey,
 		Model:     model,
 		MaxSteps:  maxSteps,
-		RelayChip: os.Getenv("RELAY_GPIO_CHIP"),
+		RelayChip: relayChip,
 	}, nil
 }
