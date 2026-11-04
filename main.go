@@ -1,54 +1,33 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io"
 	"log"
-	"net/http"
+	"os"
+
 	"pakku-agent/assets"
+	"pakku-agent/internal/agent"
+	"pakku-agent/internal/chat"
 	"pakku-agent/internal/config"
+	"pakku-agent/internal/openrouter"
+	"pakku-agent/internal/tools"
 )
 
 func main() {
-	cfg := config.Load()
-
-	body, err := json.Marshal(map[string]string{
-		"input": "Tell me a joke",
-		"model": cfg.Model,
-	})
-	if err != nil {
+	if err := run(); err != nil {
 		log.Fatal(err)
 	}
+}
 
-	req, err := http.NewRequest("POST", cfg.APIUrl, bytes.NewReader(body))
+func run() error {
+	cfg, err := config.Load()
 	if err != nil {
-		log.Fatal(err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+cfg.APIKey)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Fehler %d: %s", resp.StatusCode, respBody)
-	}
+	client := openrouter.NewClient(cfg.APIURL, cfg.APIKey, cfg.Model)
+	toolManager := tools.NewManager(tools.PermRead, tools.PermWrite)
+	pakku := agent.New(client, toolManager, cfg.MaxSteps, chat.Terminal{})
 
-	var out bytes.Buffer
-	if err := json.Indent(&out, respBody, "", "  "); err != nil {
-		fmt.Println(string(respBody))
-		return
-	}
 	assets.PrintBanner()
-	fmt.Println(out.String())
+	return chat.Run(os.Stdin, pakku)
 }

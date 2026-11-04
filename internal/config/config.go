@@ -1,39 +1,43 @@
 package config
 
 import (
-	"log"
+	"errors"
 	"os"
 	"strconv"
 
 	"github.com/joho/godotenv"
 )
 
+const (
+	apiURL          = "https://openrouter.ai/api/v1/responses"
+	defaultMaxSteps = 20
+)
+
 type Config struct {
-	APIUrl string
-	APIKey string
-	Model string
+	APIURL   string
+	APIKey   string
+	Model    string
 	MaxSteps int
 }
 
-func Load() Config {
-	apiUrl := "https://openrouter.ai/api/v1/responses"	
-	godotenv.Load()
+func Load() (Config, error) {
+	_ = godotenv.Load()
 
 	apiKey := os.Getenv("API_KEY")
 	model := os.Getenv("MODEL")
 	if apiKey == "" || model == "" {
-		log.Fatal("API_KEY or MODEL is missing in your .env")
+		return Config{}, errors.New("API_KEY or MODEL is missing in your .env")
 	}
 
 	maxSteps, err := strconv.Atoi(os.Getenv("MAX_STEPS"))
 	if err != nil || maxSteps <= 0 {
-		maxSteps = 20
+		maxSteps = defaultMaxSteps
 	}
 
 	return Config{
-		APIUrl: apiUrl,
+		APIURL:   apiURL,
 		APIKey:   apiKey,
 		Model:    model,
 		MaxSteps: maxSteps,
-	}
+	}, nil
 }

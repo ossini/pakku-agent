@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 )
@@ -24,13 +25,13 @@ func init() {
 	})
 }
 
-func getTime(args string) (string, error) {
+func getTime(_ context.Context, args string) (Result, error) {
 	var in struct {
 		Timezone string `json:"timezone"`
 	}
 	if args != "" {
 		if err := json.Unmarshal([]byte(args), &in); err != nil {
-			return "", err
+			return Result{}, err
 		}
 	}
 
@@ -38,9 +39,9 @@ func getTime(args string) (string, error) {
 	if in.Timezone != "" {
 		loc, err := time.LoadLocation(in.Timezone)
 		if err != nil {
-			return "", err
+			return Result{}, err
 		}
 		now = now.In(loc)
 	}
-	return now.Format("02.01.2006 15:04:05 MST"), nil
+	return Result{Text: now.Format("02.01.2006 15:04:05 MST")}, nil
 }

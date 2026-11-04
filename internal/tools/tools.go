@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"context"
 	"fmt"
 	"slices"
 )
@@ -13,13 +14,18 @@ const (
 	PermDangerous Permission = "dangerous"
 )
 
+type Result struct {
+	Text     string
+	ImageURL string
+}
+
 type Tool struct {
 	Name        string
 	Title       string
 	Description string
 	Permission  Permission
 	Parameters  map[string]any
-	Run         func(args string) (string, error)
+	Run         func(ctx context.Context, args string) (Result, error)
 }
 
 var allTools []Tool
@@ -42,13 +48,27 @@ func NewManager(allowed ...Permission) *Manager {
 	return m
 }
 
-func (m *Manager) Run(name, args string) (string, error) {
-	for _, t := range m.Tools {
-		if t.Name == name {
-			return t.Run(args)
-		}
+func (m *Manager) Run(ctx context.Context, name, args string) (Result, error) {
+	t, ok := m.find(name)
+	if !ok {
+		return Result{}, fmt.Errorf("unknown or not allowed tool: %s", name)
 	}
-	return "", fmt.Errorf("unknown or not allowed tool: %s", name)
+	return t.Run(ctx, args)
+}
+
+func (m *Manager) Title(name string) string {
+	if t, ok := m.find(name); ok {
+		return t.Title
+	}
+	return name
+}
+
+func (m *Manager) find(name string) (Tool, bool) {
+	i := slices.IndexFunc(m.Tools, func(t Tool) bool { return t.Name == name })
+	if i < 0 {
+		return Tool{}, false
+	}
+	return m.Tools[i], true
 }
 
 func (m *Manager) Definitions() []map[string]any {
