@@ -11,7 +11,7 @@ import (
 const (
 	apiURL           = "https://openrouter.ai/api/v1/responses"
 	defaultMaxSteps  = 20
-	defaultRelayChip = "gpiochip15"
+	defaultRelayChip = "gpiochip0"
 )
 
 type Config struct {

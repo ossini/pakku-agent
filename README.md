@@ -13,7 +13,7 @@ go run .
 | `API_KEY`         | OpenRouter API key                                             |
 | `MODEL`           | OpenRouter model with tool support                             |
 | `MAX_STEPS`       | Model requests per message, defaults to `20`                   |
-| `RELAY_GPIO_CHIP` | GPIO chip with the Pi header pins; defaults to `gpiochip15` |
+| `RELAY_GPIO_CHIP` | GPIO chip with the Pi header pins; defaults to `gpiochip0` |
 
 ## Adding a tool
 
@@ -58,9 +58,10 @@ unavailable until they are added there.
 
 ## Relay board
 
-The default `RELAY_GPIO_CHIP=gpiochip15` targets the Pi 5 used for this project.
-Check that BCM GPIO 26, 20 and 21 belong to that chip on your Pi; chip numbers
-can change with the OS or kernel. Override `RELAY_GPIO_CHIP` in `.env` if needed.
+The default `RELAY_GPIO_CHIP=gpiochip0` targets the Pi 5 used for this project
+(`pinctrl-rp1`). Check that BCM GPIO 26, 20 and 21 belong to that chip on your
+Pi; chip numbers can change with the OS or kernel. Override `RELAY_GPIO_CHIP`
+in `.env` if needed (`gpiochip4` is a symlink to `gpiochip0` on the Pi 5).
 The `set_relay` tool is registered at startup. It accepts
 `{"channel":1,"on":true}` (channels 1-3); `on=false` switches it off. The
 Waveshare RPi Relay Board uses BCM 26/20/21 for CH1/CH2/CH3 and is active LOW.
